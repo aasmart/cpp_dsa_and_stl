@@ -1,12 +1,10 @@
 #include <algorithm>
 #include <climits>
 #include <functional>
-#include <ios>
 #include <iostream>
 #include <memory>
 #include <optional>
 #include <queue>
-#include <random>
 
 #include <features.h>
 #include <unistd.h>
@@ -16,10 +14,14 @@ class RBTree {
     enum class Color { Red, Black };
 
     struct Node {
+        T data {};
+
+        friend class RBTree<T, Compare>;
+
+    private:
         Node* left { nullptr };
         Node* right { nullptr };
         Node* parent { nullptr };
-        T data {};
         Color color { Color::Red };
     };
 

@@ -1,3 +1,6 @@
+#include <optional>
+#include <random>
+
 #include <gtest/gtest.h>
 
 #include "red_black.hpp"
@@ -16,6 +19,29 @@ TEST(RedBlackTest, InsertSimple) {
     tree.insert(18);
 
     ASSERT_EQ(tree.size(), 10) << "Failed size";
+
+    auto search = tree.search(10);
+    ASSERT_NE(search, std::nullopt);
+    ASSERT_EQ(search.value()->data, 10);
+
+    ASSERT_EQ(tree.search(123), std::nullopt);
+    // ASSERT_EQ(tree.search(18), std::nullopt);
+}
+
+TEST(RedBlackTest, SingleElement) {
+    RBTree<int> rb;
+    ASSERT_EQ(rb.size(), 0);
+    ASSERT_EQ(rb.search(10), std::nullopt);
+    ASSERT_FALSE(rb.deleteNode(10));
+
+    rb.insert(10);
+
+    ASSERT_EQ(rb.size(), 1);
+    ASSERT_NE(rb.search(10), std::nullopt);
+    ASSERT_EQ(rb.search(10).value()->data, 10);
+
+    ASSERT_TRUE(rb.deleteNode(10));
+    ASSERT_EQ(rb.size(), 0);
 }
 
 TEST(RedBlackTest, RandomInsertInvariantSmall) {
