@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <cstddef>
 #include <random>
 
 #include "gtest/gtest.h"
@@ -182,4 +183,26 @@ TEST(kSegmentTreeTest, kSegmentRandomInsertUpdateLarge) {
         long long res = index.value_or(-1);
         ASSERT_FALSE((found && res == -1) || (!found && res != -1) || (found && count != res));
     }
+}
+
+TEST(SegmentTreeTest, StringSegmentTree) {
+    std::vector<char> strs = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h' };
+
+    auto merge = [](auto& a, auto& b) { return a + b; };
+    auto base = [](char data) { return std::string(1, data); };
+
+    SegmentTree<char, std::string, decltype(merge), decltype(base)> st(strs);
+
+    ASSERT_EQ(st.query(0, 7), "abcdefgh");
+    ASSERT_EQ(st.query(3, 7), "defgh");
+    ASSERT_EQ(st.query(4, 4), "e");
+
+    st.update(4, 'q');
+
+    ASSERT_EQ(st.query(4, 4), "q");
+    ASSERT_EQ(st.query(3, 7), "dqfgh");
+    ASSERT_EQ(st.query(1, 7), "bcdqfgh");
+    ASSERT_EQ(st.query(0, 7), "abcdqfgh");
+    ASSERT_EQ(st.query(0, 4), "abcdq");
+    ASSERT_EQ(st.query(0, 3), "abcd");
 }
