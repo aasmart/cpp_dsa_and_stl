@@ -18,10 +18,11 @@ public:
 
     MinStack(MinStack&&) = delete;
     auto operator=(const MinStack&) -> MinStack& = delete;
-    auto operator=(MinStack&& other) noexcept -> MinStack& { std::swap(_stack, other._stack); }
+    auto operator=(MinStack&& other) noexcept -> MinStack& = default;
     explicit MinStack(std::vector<std::pair<T, T>> stack)
         : _stack(std::move(stack)) {}
     MinStack(const MinStack& ms) = delete;
+    ~MinStack() = default;
 
     auto push(const T& item) -> void {
         if (_stack.empty()) {

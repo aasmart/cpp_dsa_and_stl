@@ -7,3 +7,7 @@ tests:
 test:
 	cd build && ctest
 	cd ..
+
+.PHONY: clean
+clean:
+	rm -rf build
