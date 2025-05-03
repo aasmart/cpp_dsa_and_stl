@@ -1,3 +1,5 @@
+#pragma once
+
 #include <algorithm>
 #include <climits>
 #include <functional>
@@ -9,9 +11,10 @@
 #include <features.h>
 #include <unistd.h>
 
+
 template <typename T, typename Compare = std::less<T>>
 class RBTree {
-    enum class Color { Red, Black };
+    enum class Color : char { Red, Black };
 
     struct Node {
         T data {};
@@ -28,13 +31,13 @@ class RBTree {
     Node* _root {};
     size_t _size { 0 };
 
-    inline auto isLeftChild(Node* node) -> bool {
+    auto isLeftChild(Node* node) -> bool {
         return node == nullptr || node->parent == nullptr ? false : node->parent->left == node;
     }
 
-    inline auto isRightChild(Node* node) -> bool { return !isLeftChild(node); }
+    auto isRightChild(Node* node) -> bool { return !isLeftChild(node); }
 
-    inline auto isBlackNode(Node* node) const noexcept -> bool { return !node || node->color == Color::Black; }
+    auto isBlackNode(Node* node) const noexcept -> bool { return (node == nullptr) || node->color == Color::Black; }
 
     void rotateLeft(Node* node) {
         if (node == nullptr) {
@@ -232,44 +235,41 @@ class RBTree {
     }
 
     // shamelessly stolen from stack overflow
-    void printTree(const std::string& prefix, const Node* node, bool isLeft) {
+    void printTree(std::ostream& os, const std::string& prefix, const Node* node, bool isLeft) const {
         if (node != nullptr) {
-            std::cout << prefix;
+            os << prefix;
 
-            std::cout << (isLeft ? "|-" : "L_");
+            os << (isLeft ? "|-" : "L_");
 
             // print the value of the node
-            std::cout << (node->color == Color::Red ? "R:" : "B:") << node->data << '\n';
+            os << (node->color == Color::Red ? "R:" : "B:") << node->data << '\n';
 
             // enter the next tree level - left and right branch
-            printTree(prefix + (isLeft ? "|   " : "    "), node->left, true);
-            printTree(prefix + (isLeft ? "|   " : "    "), node->right, false);
+            printTree(os, prefix + (isLeft ? "|   " : "    "), node->left, true);
+            printTree(os, prefix + (isLeft ? "|   " : "    "), node->right, false);
         }
     }
 
-    void printTree(const Node* node) { printTree("", node, false); }
+    void printTree(std::ostream& os, const Node* node) const { printTree(os, "", node, false); }
 
-    static auto checkInvariantHelper(Node* node, bool left) -> std::tuple<bool, int, int> {
+    static auto checkInvariantHelper(Node* node, std::optional<T> min, std::optional<T> max) -> std::optional<int> {
         // invariant, black count, largest
         if (node == nullptr) {
-            return { true, 1, left ? INT_MIN : INT_MAX };
+            return 1;
         }
 
-        auto [lv, lb, le] = checkInvariantHelper(node->left, true);
-        auto [rv, rb, re] = checkInvariantHelper(node->right, false);
-
-        if (!lv || !rv || (lb != rb) || (le > node->data || re < node->data)) {
-            return { false, -1, left ? INT_MAX : INT_MIN };
+        if ((max && max < node->data) || (min && min > node->data)) {
+            return {};
         }
 
-        int opt { 0 };
-        if (left) {
-            opt = std::max(le, node->data);
-        } else {
-            opt = std::min(re, node->data);
+        auto leftBlackCount = checkInvariantHelper(node->left, min, node->data);
+        auto rightBlackCount = checkInvariantHelper(node->right, node->data, max);
+
+        if (!leftBlackCount || !rightBlackCount || leftBlackCount.value() != rightBlackCount.value()) {
+            return {};
         }
 
-        return { true, lb + (node->color == Color::Black), opt };
+        return leftBlackCount.value() + (node->color == Color::Black);
     }
 
     [[nodiscard]] static auto findInorderSuccessor(Node* root) -> Node* {
@@ -437,9 +437,18 @@ public:
         return {};
     }
 
-    auto checkInvariant() const -> bool { return std::get<0>(checkInvariantHelper(_root, false)); }
+    [[nodiscard]] auto checkInvariant() const -> bool { return checkInvariantHelper(_root, {}, {}).has_value(); }
 
-    void print() { printTree(_root); }
+    void print(std::ostream& os) const { printTree(os, _root); }
 
     [[nodiscard]] auto size() const noexcept -> size_t { return _size; }
+
+    template <typename U>
+    friend auto operator<<(std::ostream& os, const RBTree<U>&) -> std::ostream&;
 };
+
+template <typename T>
+auto operator<<(std::ostream& os, const RBTree<T>& tree) -> std::ostream& {
+    tree.print(os);
+    return os;
+}

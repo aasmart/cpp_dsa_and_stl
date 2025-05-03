@@ -55,18 +55,18 @@ TEST(RedBlackTest, RandomInsertInvariantSmall) {
         int num = dist(mt);
         tree2Data.push_back(num);
         tree.insert(num);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion\n" << tree << '\n';
     }
 
     std::shuffle(tree2Data.begin(), tree2Data.end(), mt);
 
     for (auto i : tree2Data) {
         tree.deleteNode(i);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed deletion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed deletion\n" << tree << '\n';
     }
 }
 
-TEST(RedBlackTest, RnadomInsertInvariantLarge) {
+TEST(RedBlackTest, RandomInsertInvariantLarge) {
     std::uniform_int_distribution<> dist { -1000, 1000 };
     std::mt19937 mt {};
     mt.seed(423);
@@ -76,14 +76,14 @@ TEST(RedBlackTest, RnadomInsertInvariantLarge) {
     for (uint32_t i = 0; i < 99; ++i) {
         int num = dist(mt);
         treeData.push_back(num);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion\n" << tree << '\n';
     }
 
     std::shuffle(treeData.begin(), treeData.end(), mt);
 
     for (auto i : treeData) {
         tree.deleteNode(i);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed deletion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed deletion\n" << tree << '\n';
     }
 }
 
@@ -98,14 +98,14 @@ TEST(RedBlackTest, RandomInsertDeleteInvariantSmall2) {
         int num = dist(mt);
         treeData.push_back(num);
         tree.insert(num);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion\n" << tree << '\n';
     }
 
     std::shuffle(treeData.begin(), treeData.end(), mt);
 
     for (auto i : treeData) {
         tree.deleteNode(i);
-        ASSERT_TRUE(tree.checkInvariant()) << "Failed deletion";
+        ASSERT_TRUE(tree.checkInvariant()) << "Failed insertion\n" << tree << '\n';
     }
 }
 

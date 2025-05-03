@@ -8,6 +8,11 @@ test:
 	cd build && ctest
 	cd ..
 
+.PHONY: test_verbose
+test_verbose:
+	cd build && ctest -VV
+	cd ..
+
 .PHONY: clean
 clean:
 	rm -rf build
